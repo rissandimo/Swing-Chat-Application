@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -17,7 +17,6 @@ public class Server
 
 class Frame extends JFrame implements Runnable
 {
-
     private JTextArea textArea;
 
     public Frame()
@@ -41,7 +40,6 @@ class Frame extends JFrame implements Runnable
 
         Thread thread = new Thread(this);
         thread.start();
-
     }
 
 
@@ -51,21 +49,20 @@ class Frame extends JFrame implements Runnable
         try
         {
             ServerSocket serverSocket = new ServerSocket(5555);
+            ClientInformation clientInformation = null;
 
             while (true)
             {
-                System.out.println("Waiting to receive a connection");
                 Socket clientSocket = serverSocket.accept();
-                DataInputStream inputStream = new DataInputStream(clientSocket.getInputStream());
-                String messageFromClient = inputStream.readUTF();
-                textArea.append(messageFromClient + "\n");
+                ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
+                clientInformation = (ClientInformation) objectInputStream.readObject();
+                textArea.append(clientInformation.getClientName() + ": " + clientInformation.getClientMessage() + "\n");
                 clientSocket.close();
             }
-
         }
-        catch (IOException e)
+        catch (IOException | ClassNotFoundException exception)
         {
-            e.printStackTrace();
+            exception.printStackTrace();
         }
     }
 }
