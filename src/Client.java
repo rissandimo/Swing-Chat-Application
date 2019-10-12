@@ -1,4 +1,9 @@
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 
 public class Client
 {
@@ -50,8 +55,27 @@ class ClientPanel extends JPanel
         add(textField);
 
         submitButton =new JButton("Send");
+        submitButton.addActionListener(new SendTextListener());
 
         add(submitButton);
+    }
+
+    private class SendTextListener implements ActionListener
+    {
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            try
+            {
+                Socket socket = new Socket("192.168.1.2", 5555);
+                DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                outputStream.writeUTF(textField.getText());
+                outputStream.close();
+
+            } catch (IOException e1) {
+                System.out.println(e1.getMessage());
+            }
+        }
     }
 
 }

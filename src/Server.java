@@ -1,5 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class Server
 {
@@ -11,30 +15,57 @@ public class Server
     }
 }
 
-class Frame extends JFrame
+class Frame extends JFrame implements Runnable
 {
 
-    private	JTextArea textArea;
+    private JTextArea textArea;
 
-    public Frame(){
+    public Frame()
+    {
 
-        setBounds(1200,300,280,350);
+        setBounds(1200, 300, 280, 350);
 
         setTitle("Server");
 
-        JPanel jpanel= new JPanel();
+        JPanel jpanel = new JPanel();
 
         jpanel.setLayout(new BorderLayout());
 
-        textArea =new JTextArea();
+        textArea = new JTextArea();
 
-        jpanel.add(textArea,BorderLayout.CENTER);
+        jpanel.add(textArea, BorderLayout.CENTER);
 
         add(jpanel);
 
         setVisible(true);
 
+        Thread thread = new Thread(this);
+        thread.start();
+
     }
 
 
+    @Override
+    public void run()
+    {
+        try
+        {
+            ServerSocket serverSocket = new ServerSocket(5555);
+
+            while (true)
+            {
+                System.out.println("Waiting to receive a connection");
+                Socket clientSocket = serverSocket.accept();
+                DataInputStream inputStream = new DataInputStream(clientSocket.getInputStream());
+                String messageFromClient = inputStream.readUTF();
+                textArea.append(messageFromClient + "\n");
+                clientSocket.close();
+            }
+
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }
