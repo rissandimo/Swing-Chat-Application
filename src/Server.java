@@ -67,7 +67,7 @@ class Frame extends JFrame implements Runnable
 
 
             //Relay message to client
-                Socket clientSocketRelay = new Socket("192.168.1.1", 9999);
+                Socket clientSocketRelay = new Socket("192.168.1.14", 9999);
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocketRelay.getOutputStream());
                 objectOutputStream.writeObject(clientInformation);
                 System.out.println("Relay sent to client");
