@@ -2,8 +2,10 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Client
@@ -33,7 +35,7 @@ class ClientFrame extends JFrame{
     }
 }
 
-class ClientPanel extends JPanel
+class ClientPanel extends JPanel implements Runnable
 {
     private JLabel nameLabel, ipAddressLabel;
     private JTextField messageField, nameField, ipAddressField;
@@ -67,6 +69,34 @@ class ClientPanel extends JPanel
         submitButton =new JButton("Send");
         submitButton.addActionListener(new SendTextListener());
         add(submitButton);
+
+        Thread thread = new Thread(this);
+        thread.start();
+    }
+
+    @Override
+    public void run()
+    {
+        try
+        {
+            ServerSocket serverClient = new ServerSocket(9999);
+            Socket socket;
+            ClientInformation clientInformationReceived;
+
+            while(true)
+            {
+                socket = serverClient.accept();
+                ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+                clientInformationReceived = (ClientInformation) objectInputStream.readObject();
+                textArea.append(
+                        clientInformationReceived.getClientName() + ": " +
+                        clientInformationReceived.getClientMessage() + "\n");
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private class SendTextListener implements ActionListener
@@ -76,15 +106,20 @@ class ClientPanel extends JPanel
         {
             try
             {
-                Socket socket = new Socket("192.168.1.2", 5555);
+                System.out.println("Ip address of host:" + ipAddressField.getText());
+                //Create connection to socket
+                Socket socket = new Socket(ipAddressField.getText(), 5555);
 
+                //Obtain client and message info
                 ClientInformation clientInformation = new ClientInformation();
                 clientInformation.setClientIpAddress(ipAddressField.getText());
                 clientInformation.setClientName(nameField.getText());
                 clientInformation.setClientMessage(messageField.getText());
 
+                //Create output stream and send message to server
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
                 objectOutputStream.writeObject(clientInformation);
+
                 socket.close();
             }
             catch (IOException e1)
@@ -98,6 +133,7 @@ class ClientPanel extends JPanel
 
 class ClientInformation implements Serializable
 {
+    //Ip used for Server to create server socket to Client to relay message back to client
     private String clientName, clientIpAddress, clientMessage;
 
     public String getClientName()

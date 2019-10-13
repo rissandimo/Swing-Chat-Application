@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -21,7 +22,6 @@ class Frame extends JFrame implements Runnable
 
     public Frame()
     {
-
         setBounds(1200, 300, 280, 350);
 
         setTitle("Server");
@@ -48,15 +48,33 @@ class Frame extends JFrame implements Runnable
     {
         try
         {
+            //Open connections
             ServerSocket serverSocket = new ServerSocket(5555);
-            ClientInformation clientInformation = null;
+            System.out.println("Sever waiting for incoming connections");
+            ClientInformation clientInformation;
 
+            //Accept connections and display message from client
             while (true)
             {
                 Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connection accepted");
                 ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
                 clientInformation = (ClientInformation) objectInputStream.readObject();
-                textArea.append(clientInformation.getClientName() + ": " + clientInformation.getClientMessage() + "\n");
+                System.out.println("Client ip address: " + clientInformation.getClientIpAddress());
+                textArea.append(
+                        clientInformation.getClientName() + ": " +
+                        clientInformation.getClientMessage() + "\n");
+
+
+            //Relay message to client
+                Socket clientSocketRelay = new Socket("192.168.1.1", 9999);
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocketRelay.getOutputStream());
+                objectOutputStream.writeObject(clientInformation);
+                System.out.println("Relay sent to client");
+
+            // Close sockets
+                objectOutputStream.close();
+                clientSocketRelay.close();
                 clientSocket.close();
             }
         }
