@@ -8,6 +8,11 @@ import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * The purpose of Client is to intent to connect to a Server and send messages, which in turn will relay the
+ * message back to the client.
+ * @author Omid Nassir
+ */
 public class Client
 {
     public static void main(String[] args) {
@@ -18,7 +23,10 @@ public class Client
     }
 }
 
-
+/**
+ * Constructs a JFrame and adds ClientPanel to it
+ * Registers window listener to notify Server that this client is online
+ */
 class ClientFrame extends JFrame{
 
     public ClientFrame(){
@@ -35,6 +43,9 @@ class ClientFrame extends JFrame{
     }
 }
 
+/**
+ * JPanel which is a runnable and defines the various components for the JFrame.
+ */
 class ClientPanel extends JPanel implements Runnable
 {
     private JLabel nameLabel, ipAddressLabel;
@@ -74,6 +85,9 @@ class ClientPanel extends JPanel implements Runnable
         thread.start();
     }
 
+    /**
+     * Listens for and accepts incoming requests from the Server to display message relayed back to it
+     */
     @Override
     public void run()
     {
@@ -99,6 +113,9 @@ class ClientPanel extends JPanel implements Runnable
         }
     }
 
+    /**
+     * Attempts to connect to Server upon 'send' and send messages
+     */
     private class SendTextListener implements ActionListener
     {
         @Override
@@ -130,10 +147,12 @@ class ClientPanel extends JPanel implements Runnable
     }
 }
 
+/**
+ * Encapsulates client information to be send via Object Output Stream
+ */
 
 class ClientInformation implements Serializable
 {
-    //Ip used for Server to create server socket to Client to relay message back to client
     private String clientName, clientIpAddress, clientMessage;
 
     public String getClientName()

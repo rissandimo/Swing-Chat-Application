@@ -6,6 +6,9 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * The purpose of Server is to accept incoming requests from Clients and to relay messages received from them.
+ */
 public class Server
 {
     public static void main(String[] args) {
@@ -16,6 +19,9 @@ public class Server
     }
 }
 
+/**
+ * Frame is a runnable and it defines the various components for the JFrame.
+ */
 class Frame extends JFrame implements Runnable
 {
     private JTextArea textArea;
@@ -42,7 +48,9 @@ class Frame extends JFrame implements Runnable
         thread.start();
     }
 
-
+    /**
+     * Accept incoming requests from client, display them in text area and relay message back to them.
+     */
     @Override
     public void run()
     {
