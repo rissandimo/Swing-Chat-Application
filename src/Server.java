@@ -24,6 +24,8 @@ public class Server
  */
 class Frame extends JFrame implements Runnable
 {
+
+
     private JTextArea textArea;
 
     public Frame()
@@ -47,7 +49,6 @@ class Frame extends JFrame implements Runnable
         Thread thread = new Thread(this);
         thread.start();
     }
-
     /**
      * Accept incoming requests from client, display them in text area and relay message back to them.
      */
@@ -66,16 +67,19 @@ class Frame extends JFrame implements Runnable
             {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connection accepted");
+
+                String clientIpAddress = clientSocket.getInetAddress().getHostAddress();
+
+                //Create output stream
                 ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
                 clientInformation = (ClientInformation) objectInputStream.readObject();
-                System.out.println("Client ip address: " + clientInformation.getClientIpAddress());
                 textArea.append(
                         clientInformation.getClientName() + ": " +
                         clientInformation.getClientMessage() + "\n");
 
 
             //Relay message to client
-                Socket clientSocketRelay = new Socket("192.168.1.14", 9999);
+                Socket clientSocketRelay = new Socket(clientIpAddress, 9999);
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocketRelay.getOutputStream());
                 objectOutputStream.writeObject(clientInformation);
                 System.out.println("Relay sent to client");

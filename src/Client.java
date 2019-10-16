@@ -25,13 +25,13 @@ public class Client
 
 /**
  * Constructs a JFrame and adds ClientPanel to it
- * Registers window listener to notify Server that this client is online
+ * Then it registers NotifyActiveStatus with window listener to notify Server that this client is online
  */
 class ClientFrame extends JFrame{
 
-    public ClientFrame(){
+    ClientFrame(){
 
-        setBounds(600,300,280,375);
+        setBounds(600,300,270,370);
 
         setTitle("Client");
 
@@ -48,36 +48,40 @@ class ClientFrame extends JFrame{
  */
 class ClientPanel extends JPanel implements Runnable
 {
-    private JLabel nameLabel, ipAddressLabel;
-    private JTextField messageField, nameField, ipAddressField;
+    private JTextField messageField;
+    private JTextField nameField;
+    private JTextField ipAddressField;
     private JTextArea textArea;
 
-    private JButton submitButton;
-
-
-    public ClientPanel()
+    ClientPanel()
     {
-        nameLabel   = new JLabel("Name:");
+        String clientName = JOptionPane.showInputDialog("Please enter your name");
+
+        //Name
+        JLabel nameLabel = new JLabel("Name:");
         nameField = new JTextField(15);
+        nameField.setEditable(false);
+        nameField.setText(clientName);
         add(nameLabel);
         add(nameField);
 
-        ipAddressLabel = new JLabel("Ip Address");
-        ipAddressField = new JTextField(15);
+        //Ip Address
+        JLabel ipAddressLabel = new JLabel("Host Ip Address");
+        ipAddressField = new JTextField(10);
         add(ipAddressLabel);
         add(ipAddressField);
 
-        JLabel textLabel=new JLabel("Message");
-        add(textLabel);
-
+        //Text area
         textArea = new JTextArea(14,20);
         textArea.setEditable(false);
         add(textArea);
 
+        //Message
         messageField = new JTextField(15);
         add(messageField);
 
-        submitButton =new JButton("Send");
+        //Button
+        JButton submitButton = new JButton("Send");
         submitButton.addActionListener(new SendTextListener());
         add(submitButton);
 
@@ -116,20 +120,17 @@ class ClientPanel extends JPanel implements Runnable
     /**
      * Attempts to connect to Server upon 'send' and send messages
      */
-    private class SendTextListener implements ActionListener
+    class SendTextListener implements ActionListener
     {
         @Override
         public void actionPerformed(ActionEvent e)
         {
             try
             {
-                System.out.println("Ip address of host:" + ipAddressField.getText());
-                //Create connection to socket
                 Socket socket = new Socket(ipAddressField.getText(), 5555);
 
-                //Obtain client and message info
+                //Encapsulate client data
                 ClientInformation clientInformation = new ClientInformation();
-                clientInformation.setClientIpAddress(ipAddressField.getText());
                 clientInformation.setClientName(nameField.getText());
                 clientInformation.setClientMessage(messageField.getText());
 
@@ -150,7 +151,6 @@ class ClientPanel extends JPanel implements Runnable
 /**
  * Encapsulates client information to be send via Object Output Stream
  */
-
 class ClientInformation implements Serializable
 {
     private String clientName, clientIpAddress, clientMessage;
